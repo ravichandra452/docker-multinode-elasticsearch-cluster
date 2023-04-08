@@ -1,0 +1,33 @@
+version: "3.4"
+x-elasticmain: &elastic
+  image: elasticsearch:8.7.0
+  networks:
+    - "internal"
+  environment:
+    - ES_JAVA_OPTS=-Xmx4g -Xms4g
+services:
+
+ elastic-0:
+       <<: *elastic
+       deploy:
+         placement:
+           constraints:
+             - node.hostname == hostname1
+       command: "elasticsearch -E cluster.name=test -E node.name=elastic-0 -E node.roles=master -E xpack.security.enabled=false -E network.host=_site_ -E discovery.seed_hosts=elastic-1,elastic-2 -E cluster.initial_master_nodes=elastic-0"
+ elastic-1:
+       <<: *elastic
+       deploy:
+         placement:
+           constraints:
+             - node.hostname == hostname2
+       command: "elasticsearch -E cluster.name=test -E node.name=elastic-1 -E xpack.security.enabled=false -E network.host=_site_ -E discovery.seed_hosts=elastic-0,elastic-2"       
+ elastic-2:
+       <<: *elastic
+       deploy:
+         placement:
+           constraints:
+             - node.hostname == hostname3
+       command: "elasticsearch -E cluster.name=test -E node.name=elastic-2 -E xpack.security.enabled=false -E network.host=_site_ -E discovery.seed_hosts=elastic-0,elastic-1" 
+networks:
+    internal:
+      driver:  overlay
