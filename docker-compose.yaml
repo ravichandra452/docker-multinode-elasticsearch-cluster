@@ -2,7 +2,7 @@ version: "3.4"
 x-elasticmain: &elastic
   image: elasticsearch:8.7.0
   networks:
-    - "internal"
+    - "elastic"
   environment:
     - ES_JAVA_OPTS=-Xmx4g -Xms4g
 services:
@@ -29,5 +29,5 @@ services:
              - node.hostname == hostname3
        command: "elasticsearch -E cluster.name=test -E node.name=elastic-2 -E xpack.security.enabled=false -E network.host=_site_ -E discovery.seed_hosts=elastic-0,elastic-1,elastic-2 cluster.initial_master_nodes=elastic-0,elastic-1,elastic-2" 
 networks:
-    internal:
+    elastic:
       driver:  overlay
